@@ -24,26 +24,26 @@ func main() {
 	var wg sync.WaitGroup
 
 	// make a channel for receiving jobs and for sending results
-	chunks := make(chan string, 100)
+	lines := make(chan string, 100)
 	results := make([]<-chan map[string]int, cpus)
 
 	// read the file
-	file, err := os.Open("samples/swanns-way.txt")
+	file, err := os.Open("samples/war-and-peace.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for w := 0; w < cpus; w++ {
 		wg.Add(1)
-		results[w] = worker(chunks, &wg)
+		results[w] = worker(w, lines, &wg)
 	}
 
 	go func() {
-		defer close(chunks)
+		defer close(lines)
 		// chunk the text file
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
-			chunks <- scanner.Text()
+			lines <- scanner.Text()
 		}
 		if err := scanner.Err(); err != nil {
 			log.Fatal(err)
@@ -71,7 +71,8 @@ func main() {
 	log.Println("Done!")
 }
 
-func worker(chunks <-chan string, wg *sync.WaitGroup) <-chan map[string]int {
+func worker(workerID int, chunks <-chan string, wg *sync.WaitGroup) <-chan map[string]int {
+	log.Println("Starting worker", workerID)
 	ch := make(chan map[string]int)
 	go func() {
 		defer close(ch)
