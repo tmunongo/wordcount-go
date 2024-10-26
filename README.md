@@ -9,3 +9,13 @@ A short overview of how our program will work:
 - Send each chunk to a worker for processing, and receive a map of words to occurrence count.
 - Merge the resultant maps into one final result
 - Write the results to a text file.
+
+# Usage
+
+Clone:
+
+`git clone github.com/tmunongo/wordcount-go`
+
+Run:
+
+`go run main.go`
